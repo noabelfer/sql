@@ -1,0 +1,131 @@
+
+--1
+select * from superstore_data sd ;
+
+--2
+select count(id) from superstore_data sd;
+
+--3
+select * from superstore_data sd limit 10;
+
+--4
+select * from superstore_data sd limit 25 offset 20;
+
+--5
+select id, year_birth , marital_status  from superstore_data sd limit 20;
+
+--6
+select id from superstore_data sd where mntwines > 1000;
+
+--7
+select  date_part('year', now()) - year_birth  as age,  marital_status from superstore_data sd where mntfishproducts <500 and mntmeatproducts > 500; 
+
+--8
+select id from superstore_data sd where response = 1;
+
+--9
+select education from superstore_data sd group by education order by education;
+
+--10
+select * from superstore_data sd where year_birth = (select max(year_birth) from superstore_data sd2);
+
+--11
+select id, date_part('year', now()) - year_birth  as age, marital_status  from superstore_data sd
+where year_birth = (select min(year_birth) from superstore_data sd2);
+
+--12
+select avg(income) from superstore_data sd where complain =1;
+
+--13
+select sum(kidhome)  from superstore_data sd;
+
+--14
+select id, income,date_part('year', now()) - year_birth  as age, marital_status 
+from superstore_data sd where numwebpurchases > numstorepurchases;
+
+--15
+select id,kidhome + teenhome as total_kids   from superstore_data sd where numwebvisitsmonth > 0;
+
+--16
+select count(id) from superstore_data sd where mntmeatproducts = 0 and mntfishproducts = 0;
+
+--17
+select * from superstore_data sd where mntgoldprods = (select max(mntgoldprods) from superstore_data sd2);
+
+--18
+select id, date_part('year', now()) - year_birth as age
+from superstore_data sd 
+where date_part('year', now()) - year_birth between 20 and 40;
+
+--19
+select year_birth 
+from superstore_data sd 
+group by year_birth;
+
+--20
+select id , mntsweetproducts 
+from superstore_data sd
+order by mntsweetproducts desc
+limit 10;
+
+--21
+select count(id), marital_status
+from superstore_data sd
+group by marital_status;
+
+--22
+select education , count(mntsweetproducts + mntwines )
+from superstore_data sd
+group by education ;
+
+--23
+select education , marital_status,
+max(date_part('year', now()) - year_birth),
+min(date_part('year', now()) - year_birth)
+from superstore_data sd
+group by education, marital_status ;
+
+--24
+select count(id), date_part('year', now()) - year_birth as age
+from superstore_data sd
+where response =1 and complain =0
+group by date_part('year', now()) - year_birth;
+
+--25
+select distinct on
+(education) education, min(date_part('year', now()) - year_birth) as age, id
+from superstore_data sd
+group by education, id
+order by education, min(date_part('year', now()) - year_birth)
+--having year_birth > 1970
+
+
+
+--26
+select kidhome + teenhome as total_kids, avg(mntmeatproducts) as meat_avg, avg(mntfishproducts) as fish_avg, 
+avg(mntsweetproducts) as sweet_avg, avg(mntwines) as wine_avg, avg(mntgoldprods) as gold_avg 
+from  superstore_data sd 
+group by kidhome + teenhome ;
+
+--27
+select distinct on
+(teenhome) teenhome, id, date_part('year', now()) - year_birth as age, year_birth 
+from superstore_data sd
+order by teenhome, year_birth desc 
+
+
+--28
+select count(id), response 
+from superstore_data sd
+group by response;
+
+--29
+select marital_status ,avg(kidhome) as kids_avg, avg(teenhome) as teen_avg
+from superstore_data sd 
+group by marital_status;
+
+--30
+select education ,avg(income), min(income), max(income)
+from superstore_data sd 
+group by education;
+
