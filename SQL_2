@@ -1,0 +1,45 @@
+create table public.series (id serial primary key,
+name varchar(256));
+
+alter table movies add series_a smallint;
+update movies set series_a=1 where id=8
+
+select
+	*
+from
+	movies
+full outer join directors d on movies.director_id=d.id
+full outer join series on series.id=movies.series_a;
+
+select count(m.id), series.name
+from series join movies m on series.id=m.series_a
+group by series.id;
+
+select d.name, count(m.id)
+from directors d join movies m on m.director_id=d.id
+group by d.id;
+
+select d.name, count(m.id) as movie_c, count(series.id) as series_c
+from directors d full outer join movies m on m.director_id=d.id
+full outer join series on m.series_a=series.id
+group by d.name 
+
+
+---e
+
+select m.name, series.name, d.name
+from directors d full outer join movies m on m.director_id=d.id
+full outer join series on m.series_a=series.id
+group by m.name, series.name, d.name
+having series.name in
+(select series.name
+from movies m join series on m.series_a=series.id
+group by series.id
+having count(series.id)>1)
+
+--f
+select m.name, d.name
+from directors d full outer join movies m on m.director_id=d.id
+full outer join series on m.series_a=series.id
+where m.name is not null and series.name is null
+
