@@ -1,0 +1,80 @@
+#! /usr/local/bin/python3.11
+from datetime import datetime
+import argparse
+import psycopg2
+from config import get_config
+
+
+def transfer(amnt:int, from_account_num:int, to_account_num:int, sender_passport_num):
+    params = get_config()
+    conn = psycopg2.connect(**params)
+    data = None
+
+
+
+    with psycopg2.connect(**params) as conn:
+        with conn.cursor() as cur:
+            #getting the sender account id:
+            cur.execute(f"select account_id from customers_accounts ca where customer_id = (select id from customers c where passport_num = {sender_passport_num})")
+            result_account_id = cur.fetchone()
+            #checking the sender account number:
+            if result_account_id is None:
+                raise Exception('account number of sender does not exist')
+            else:
+                sender_account_id = int(result_account_id[0])
+                print(sender_account_id)
+
+                # checking the reciever account id:
+                cur.execute(f"select id from accounts a where account_num = {to_account_num}")
+                result_account_rec = cur.fetchone()
+                if result_account_rec is None:
+                    raise Exception('account reciever does not exist')
+                else:
+                    account_id_rec = int(result_account_rec[0])
+                    print(account_id_rec)
+
+
+                    #checking if there's enough credit:
+                    cur.execute(f"select balance + max_limit from accounts a where account_num = {from_account_num}")
+                    myresult = cur.fetchone()
+                    print(myresult)
+                    balance_and_credit_limit = int(myresult[0])
+                    if balance_and_credit_limit < int(amnt):
+                        raise Exception('not enough credit')
+
+                    else:
+                        cur.execute(f"insert into transactions (t_type, amount, t_timestamp, sender, resiver) VALUES ('transfer', {amnt}, '{datetime.now()}',{sender_account_id},{account_id_rec})")
+                        cur.execute(f"update accounts set balance = balance - {amnt} where account_num={from_account}")
+                        cur.execute(f" update accounts set balance = balance + {amnt} where account_num={to_account}")
+                        print("Database Updated !")
+
+    if conn is not None:
+        conn.close()
+        print('db connection closed')
+
+
+# a = transfer(30,4,5)
+# print(a)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    # parser.add_argument('-t', '--transfer')
+    parser.add_argument('-a', '--amnt')
+    parser.add_argument('-f', '--from_account')
+    parser.add_argument('-t', '--to_account')
+    parser.add_argument('-p', '--sender_passport_num')
+
+    args = parser.parse_args()
+
+    amnt = args.amnt
+    from_account = args.from_account
+    to_account = args.to_account
+    sender_passport_num = args.sender_passport_num
+
+    print(args.amnt, args.from_account, args.to_account)
+try:
+    a = transfer(amnt, from_account,to_account, sender_passport_num)
+except Exception as e:
+    print(str(e))
