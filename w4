@@ -1,0 +1,66 @@
+# Get all the actors in the db who are younger than 50 years old
+#print(Actor.objects.filter(birth_year__lt=(2023-50)))
+
+# Get movies that last less than 2.5 hours and were released after 2005
+# a = Movie.objects.filter(duration_in_min__lt=270)
+# a=a.filter(release_year__gt=2005)
+# print(a)
+
+# Get all the movies that contain a word “criminal”, “mob” or “cop” in their description
+# Q(question__startswith='Who') | Q(question__startswith='What')
+# b=Q(Movie.objects.filter(description__contains='criminal')) | Q(Movie.objects.filter(description__contains='cop')) | Q(Movie.objects.filter(description__contains='mob'))
+# print(b)
+
+# Like previous, but get only movies that were released before 2010
+# b= Movie.objects.filter(
+# Q(description__contains='criminal') | Q(description__contains='cop') | Q(description__contains='mob'),
+# release_year__lt=2010)
+# print(b)
+
+
+# Get list of actors, and add amount of movies they played in (for each one)
+
+# ret_val = Actor.objects.values('name').annotate(movies_count=Count('movieactor__movie_id'))
+# print(list(ret_val))
+
+
+
+# Get average, min, and max rating in the system
+# f = Rating.objects.all().aggregate(Avg('rating'),Min('rating'), Max('rating'))
+# print(f)
+
+
+# Get Movies with their avg ratings
+# m = Movie.objects.values('name').annotate(movies_avg=Avg('rating__rating'))
+# print(m)
+
+# Get ratings that were created in 2023
+
+# a = Rating.objects.filter(rating_date__iso_year=2023)
+# print(a)
+
+
+# Get all the actors in the system with min and max rating of the movies they played in
+# a = Actor.objects.annotate(min_rating=Min('movie__rating__rating'), max_rating=Max('movie__rating__rating'))
+# for v in a:
+#     print(v.name, v.min_rating, v.max_rating)
+
+
+# Get movies with average salary for actors in each one
+# a= Movie.objects.values('name').annotate(movie_salary=Avg('movieactor__salary'))
+# print(a)
+
+# Get actors with their average salaries
+# a= Actor.objects.values('name').annotate(actor_salary=Avg('movieactor__salary'))
+# print(a)
+
+
+# Get actors who played main roles at least once
+
+# a = Actor.objects.filter(movieactor__main_role__exact=True)
+# print(a)
+
+
+# Get movies and amount of actors who played main roles
+a = Movie.objects.values('name').annotate(count_actors = Count('movieactor__main_role'))
+print(a)
